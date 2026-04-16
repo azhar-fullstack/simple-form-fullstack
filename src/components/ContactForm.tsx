@@ -6,7 +6,7 @@ import { normalizePhoneDigits, validateContact } from "@/lib/validation";
 type SubmitState =
   | { status: "idle" }
   | { status: "submitting" }
-  | { status: "success"; message: string; demo?: boolean }
+  | { status: "success"; message: string }
   | { status: "error"; message: string; details?: string[] };
 
 export function ContactForm() {
@@ -41,7 +41,6 @@ export function ContactForm() {
         details?: string[] | string;
         message?: string;
         hint?: string;
-        demo?: boolean;
       };
 
       if (!res.ok) {
@@ -63,8 +62,7 @@ export function ContactForm() {
 
       setSubmitState({
         status: "success",
-        message: payload.message ?? "Saved successfully.",
-        demo: Boolean(payload.demo),
+        message: payload.message ?? "Thank you.",
       });
       setName("");
       setPhone("");
@@ -72,7 +70,7 @@ export function ContactForm() {
       console.error("[ContactForm] submit:", err);
       setSubmitState({
         status: "error",
-        message: "Network error. Check your connection and try again.",
+        message: "Something went wrong. Try again.",
       });
     }
   }
@@ -88,15 +86,7 @@ export function ContactForm() {
       className="w-full max-w-md space-y-5 rounded-xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
       noValidate
     >
-      <div>
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-          Contact
-        </h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Leave your name and phone. On your computer, submissions are saved to a local file; on Vercel this demo only
-          validates and confirms (see README to add a real database later).
-        </p>
-      </div>
+      <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Contact</h1>
 
       <div className="space-y-2">
         <label htmlFor="name" className="block text-sm font-medium text-zinc-800 dark:text-zinc-200">
@@ -144,17 +134,12 @@ export function ContactForm() {
       ) : null}
 
       {submitState.status === "success" ? (
-        <div
-          className="space-y-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+        <p
+          className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
           role="status"
         >
-          <p>{submitState.message}</p>
-          {submitState.demo ? (
-            <p className="text-xs text-emerald-900/80 dark:text-emerald-200/80">
-              Tip: check Vercel → Logs for this request; submissions are not written to a database until you connect one.
-            </p>
-          ) : null}
-        </div>
+          {submitState.message}
+        </p>
       ) : null}
 
       {submitState.status === "error" ? (

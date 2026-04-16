@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Simple form — full stack",
-  description: "Name and phone capture with local SQLite or Vercel demo mode",
+  title: "Contact",
+  description: "Contact form",
 };
 
 export default function RootLayout({

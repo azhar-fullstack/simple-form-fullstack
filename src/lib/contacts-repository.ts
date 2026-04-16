@@ -1,7 +1,7 @@
 import { insertContactSqlite } from "@/lib/sqlite";
 
 export type InsertContactResult =
-  | { ok: true; id: string | null; demo?: boolean }
+  | { ok: true; id: string | null }
   | {
       ok: false;
       message: string;
@@ -9,20 +9,13 @@ export type InsertContactResult =
       devDetail?: string;
     };
 
-/**
- * Local: SQLite file under `data/contacts.db`.
- * Vercel: no persistent disk — validated submissions succeed as a demo (logged only).
- */
 export async function insertContactRow(
   name: string,
   phone: string,
 ): Promise<InsertContactResult> {
   if (process.env.VERCEL) {
-    console.info("[contacts] submit (demo — not persisted to DB)", {
-      name,
-      phone,
-    });
-    return { ok: true, id: null, demo: true };
+    console.info("[contacts] submit", { name, phone });
+    return { ok: true, id: null };
   }
 
   try {

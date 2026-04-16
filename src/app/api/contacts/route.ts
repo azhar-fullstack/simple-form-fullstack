@@ -36,15 +36,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const demo = Boolean(result.demo);
   return NextResponse.json(
     {
       ok: true,
       id: result.id,
-      demo,
-      message: demo
-        ? "Thanks — we received your details. (Demo: nothing is stored in a database on this deploy.)"
-        : "Thanks — your details were saved.",
+      message: "Thank you.",
     },
     { status: 201 },
   );
