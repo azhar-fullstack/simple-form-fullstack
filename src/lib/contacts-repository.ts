@@ -8,6 +8,11 @@ import { insertContactSqlite, listContactsSqlite } from "@/lib/sqlite";
 
 export type { ContactRow };
 
+/** True when the server saves to Redis or local SQLite (not Vercel demo-only). */
+export function usesServerPersistence(): boolean {
+  return isRedisConfigured() || !process.env.VERCEL;
+}
+
 export type InsertContactResult =
   | { ok: true; id: string | null }
   | {

@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { insertContactRow, listContactRows } from "@/lib/contacts-repository";
+import {
+  insertContactRow,
+  listContactRows,
+  usesServerPersistence,
+} from "@/lib/contacts-repository";
 import { validateContact } from "@/lib/validation";
 
 export async function GET() {
@@ -46,6 +50,7 @@ export async function POST(request: Request) {
       ok: true,
       id: result.id,
       message: "Thank you.",
+      persisted: usesServerPersistence(),
     },
     { status: 201 },
   );

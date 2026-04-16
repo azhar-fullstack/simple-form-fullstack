@@ -9,4 +9,5 @@ npm run dev
 
 **Local:** data in `data/contacts.db`.
 
-**Vercel:** add **Redis** from the [Vercel Marketplace](https://vercel.com/marketplace) (Upstash). Link it to the project so `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are set, then redeploy. Form submissions and **Saved** use the same Redis list.
+**Vercel (no setup):** **Saved** uses your **browser** (name + phone table).  
+**Optional Redis:** add Upstash from the [Marketplace](https://vercel.com/marketplace) and set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` for server-side storage shared across devices.

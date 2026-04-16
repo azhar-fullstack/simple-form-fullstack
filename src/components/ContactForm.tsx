@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { appendLocalContact } from "@/lib/local-storage-contacts";
 import { normalizePhoneDigits, validateContact } from "@/lib/validation";
 
 type SubmitState =
@@ -41,6 +42,7 @@ export function ContactForm() {
         details?: string[] | string;
         message?: string;
         hint?: string;
+        persisted?: boolean;
       };
 
       if (!res.ok) {
@@ -58,6 +60,15 @@ export function ContactForm() {
           details: detailList.length ? detailList : undefined,
         });
         return;
+      }
+
+      if (payload.persisted === false) {
+        appendLocalContact({
+          id: crypto.randomUUID(),
+          name: validation.data.name,
+          phone: validation.data.phone,
+          created_at: new Date().toISOString(),
+        });
       }
 
       setSubmitState({
