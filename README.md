@@ -1,72 +1,48 @@
 # simple-form-fullstack
 
-Minimal [Next.js](https://nextjs.org) (App Router) app: a **name + phone** form, **POST** API route, validation, and **Supabase (Postgres)** persistence. Environment variables hold all secrets—nothing is hardcoded.
+Small [Next.js](https://nextjs.org) (App Router) demo: **name + phone** form, **POST** `/api/contacts`, validation, and a **real database** (SQLite file on your machine out of the box; optional **Supabase** for Vercel).
 
-## Setup
+## Run locally (no accounts, no Docker)
 
-1. **Clone and install**
+```bash
+git clone https://github.com/azhar-fullstack/simple-form-fullstack.git
+cd simple-form-fullstack
+npm install
+npm run dev
+```
 
-   ```bash
-   git clone https://github.com/azhar-fullstack/simple-form-fullstack.git
-   cd simple-form-fullstack
-   npm install
-   ```
+Open [http://localhost:3000](http://localhost:3000), submit the form. Rows are stored in **`data/contacts.db`** (created automatically; ignored by git). Local SQLite uses **[sql.js](https://github.com/sql-js/sql.js)** (WASM), so you only need `npm install`—no C++ build tools or Docker.
 
-2. **Supabase**
-
-   - Create a project at [supabase.com](https://supabase.com).
-   - In **SQL Editor**, run the script in `supabase/schema.sql` to create the `contacts` table.
-   - Under **Project Settings → API**, copy the **Project URL** and **service_role** key (server-only).
-
-3. **Environment**
-
-   ```bash
-   cp .env.example .env.local
-   ```
-
-   Fill in:
-
-   | Variable | Description |
-   |----------|-------------|
-   | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-   | `SUPABASE_SERVICE_ROLE_KEY` | Service role key (use only on the server / Vercel env) |
-
-4. **Run locally**
-
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000), submit the form, then confirm the row in Supabase **Table Editor → contacts**.
-
-5. **Build**
-
-   ```bash
-   npm run build
-   npm start
-   ```
+If you see **“Can’t resolve …”** for a package, you are usually not in the project folder or you skipped **`npm install`** after cloning.
 
 ## Deploy on Vercel
 
-1. Push this repo to GitHub and import the project in [Vercel](https://vercel.com).
-2. Add the same env vars (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`) in **Project → Settings → Environment Variables**.
-3. Deploy, then test the live URL end-to-end (form submit → new row in Supabase).
+Serverless hosting has no persistent disk, so you **must** use Supabase (or similar) in production:
 
-## Project layout
+1. Create a [Supabase](https://supabase.com) project, run `supabase/schema.sql` in the **SQL Editor** (creates `contacts`).
+2. In Vercel → your project → **Settings → Environment Variables**, add:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY` (server secret only)
+3. Deploy. If both variables are set, the app uses Supabase instead of SQLite.
 
-- `src/app/page.tsx` — page shell
-- `src/components/ContactForm.tsx` — client form, client-side validation, fetch to API
-- `src/app/api/contacts/route.ts` — `POST` handler, server validation, Supabase insert
-- `src/lib/validation.ts` — shared validation rules
-- `src/lib/supabase/admin.ts` — server-only Supabase client
+Locally, if you add those same variables to `.env.local`, the app will use Supabase instead of the SQLite file.
 
-Errors are surfaced in JSON responses and in the UI (no silent failures). API returns `503` if Supabase env is missing, `400` for validation, `500` with logging if the database insert fails.
+## Scripts
 
-## AI (Cursor) usage and verification
+```bash
+npm run dev    # development
+npm run build  # production build
+npm start      # run production build
+```
 
-- **Usage:** The app structure, API route, Supabase integration, validation, and README were drafted and edited in Cursor with an AI assistant from the existing Next.js scaffold (dependencies + `create-next-app` defaults).
-- **Verification:** Run `npm run build` locally; run `npm run dev`, submit the form with valid/invalid data; check Network tab for `/api/contacts` status and JSON body; confirm rows in the Supabase dashboard. After Vercel deploy, repeat on the production URL with env vars set.
+## Layout
 
-## License
+- `src/components/ContactForm.tsx` — form + client validation
+- `src/app/api/contacts/route.ts` — POST handler
+- `src/lib/validation.ts` — shared rules
+- `src/lib/sqlite.ts` — local `data/contacts.db` (default when not on Vercel and no Supabase env)
+- `src/lib/supabase/admin.ts` — Supabase when env vars are set
 
-Private / use as you like for learning or client work.
+## AI (Cursor) note
+
+Scaffold and features were iterated in Cursor; verify with `npm run build`, local form submit, and (if deployed) Supabase **Table Editor**.

@@ -16,7 +16,7 @@ export function createSupabaseAdmin(): SupabaseAdminInit {
     return {
       ok: false,
       message:
-        "Database is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.",
+        "Supabase env vars are incomplete. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, or omit them to use local SQLite.",
     };
   }
 

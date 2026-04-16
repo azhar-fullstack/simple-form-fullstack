@@ -91,7 +91,7 @@ export function ContactForm() {
           Contact
         </h1>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Leave your name and phone. Data is stored in Supabase.
+          Leave your name and phone. Locally this saves to a small database file; on Vercel use Supabase (see README).
         </p>
       </div>
 
