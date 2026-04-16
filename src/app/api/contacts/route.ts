@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
-import { insertContactRow } from "@/lib/contacts-repository";
+import { insertContactRow, listContactRows } from "@/lib/contacts-repository";
 import { validateContact } from "@/lib/validation";
+
+export async function GET() {
+  const { items, persisted } = await listContactRows();
+  return NextResponse.json({ ok: true, items, persisted });
+}
 
 export async function POST(request: Request) {
   let body: unknown;

@@ -1,4 +1,10 @@
-import { insertContactSqlite } from "@/lib/sqlite";
+import {
+  insertContactSqlite,
+  listContactsSqlite,
+  type ContactRow,
+} from "@/lib/sqlite";
+
+export type { ContactRow };
 
 export type InsertContactResult =
   | { ok: true; id: string | null }
@@ -29,5 +35,22 @@ export async function insertContactRow(
       message: "Could not save your submission. Please try again later.",
       devDetail: process.env.NODE_ENV === "development" ? msg : undefined,
     };
+  }
+}
+
+/** Local file DB only; empty on Vercel (no persistent store). */
+export async function listContactRows(): Promise<{
+  items: ContactRow[];
+  persisted: boolean;
+}> {
+  if (process.env.VERCEL) {
+    return { items: [], persisted: false };
+  }
+  try {
+    const items = await listContactsSqlite();
+    return { items, persisted: true };
+  } catch (err) {
+    console.error("[listContactRows]", err);
+    return { items: [], persisted: true };
   }
 }

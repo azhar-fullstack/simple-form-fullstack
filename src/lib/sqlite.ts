@@ -55,6 +55,13 @@ function persist() {
   fs.writeFileSync(dbFilePath(), Buffer.from(data));
 }
 
+export type ContactRow = {
+  id: number;
+  name: string;
+  phone: string;
+  created_at: string;
+};
+
 /** Local-only persistence (sql.js + file under `data/`). */
 export async function insertContactSqlite(
   name: string,
@@ -66,4 +73,26 @@ export async function insertContactSqlite(
   const raw = rows[0]?.values[0]?.[0];
   persist();
   return String(raw ?? "");
+}
+
+export async function listContactsSqlite(): Promise<ContactRow[]> {
+  const database = await getDb();
+  const result = database.exec(
+    "SELECT id, name, phone, created_at FROM contacts ORDER BY id DESC",
+  );
+  if (!result.length || !result[0].values.length) {
+    return [];
+  }
+  const { columns, values } = result[0];
+  const idx = (name: string) => columns.indexOf(name);
+  const iId = idx("id");
+  const iName = idx("name");
+  const iPhone = idx("phone");
+  const iAt = idx("created_at");
+  return values.map((row) => ({
+    id: Number(row[iId]),
+    name: String(row[iName]),
+    phone: String(row[iPhone]),
+    created_at: String(row[iAt]),
+  }));
 }
