@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import initSqlJs, { type Database } from "sql.js";
+import type { ContactRow } from "@/lib/contact-types";
 
 let initPromise: ReturnType<typeof initSqlJs> | null = null;
 let db: Database | null = null;
@@ -55,13 +56,6 @@ function persist() {
   fs.writeFileSync(dbFilePath(), Buffer.from(data));
 }
 
-export type ContactRow = {
-  id: number;
-  name: string;
-  phone: string;
-  created_at: string;
-};
-
 /** Local-only persistence (sql.js + file under `data/`). */
 export async function insertContactSqlite(
   name: string,
@@ -90,7 +84,7 @@ export async function listContactsSqlite(): Promise<ContactRow[]> {
   const iPhone = idx("phone");
   const iAt = idx("created_at");
   return values.map((row) => ({
-    id: Number(row[iId]),
+    id: String(row[iId]),
     name: String(row[iName]),
     phone: String(row[iPhone]),
     created_at: String(row[iAt]),

@@ -1,8 +1,10 @@
+import type { ContactRow } from "@/lib/contact-types";
 import {
-  insertContactSqlite,
-  listContactsSqlite,
-  type ContactRow,
-} from "@/lib/sqlite";
+  insertContactRedis,
+  isRedisConfigured,
+  listContactsRedis,
+} from "@/lib/redis-contacts";
+import { insertContactSqlite, listContactsSqlite } from "@/lib/sqlite";
 
 export type { ContactRow };
 
@@ -19,8 +21,23 @@ export async function insertContactRow(
   name: string,
   phone: string,
 ): Promise<InsertContactResult> {
+  if (isRedisConfigured()) {
+    try {
+      const id = await insertContactRedis(name, phone);
+      return { ok: true, id };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[insertContactRow] Redis error:", msg, err);
+      return {
+        ok: false,
+        message: "Could not save your submission. Please try again later.",
+        devDetail: process.env.NODE_ENV === "development" ? msg : undefined,
+      };
+    }
+  }
+
   if (process.env.VERCEL) {
-    console.info("[contacts] submit", { name, phone });
+    console.info("[contacts] submit (no Redis — not persisted)", { name, phone });
     return { ok: true, id: null };
   }
 
@@ -38,14 +55,24 @@ export async function insertContactRow(
   }
 }
 
-/** Local file DB only; empty on Vercel (no persistent store). */
 export async function listContactRows(): Promise<{
   items: ContactRow[];
   persisted: boolean;
 }> {
+  if (isRedisConfigured()) {
+    try {
+      const items = await listContactsRedis();
+      return { items, persisted: true };
+    } catch (err) {
+      console.error("[listContactRows] Redis error:", err);
+      return { items: [], persisted: true };
+    }
+  }
+
   if (process.env.VERCEL) {
     return { items: [], persisted: false };
   }
+
   try {
     const items = await listContactsSqlite();
     return { items, persisted: true };

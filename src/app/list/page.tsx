@@ -12,7 +12,17 @@ export default async function ListPage() {
 
         {!persisted ? (
           <p className="rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
-            No saved data on this deploy. Use the app locally to fill the table.
+            Connect{" "}
+            <strong className="font-medium text-zinc-800 dark:text-zinc-200">Redis</strong> on
+            Vercel (Storage → Marketplace → Redis / Upstash) so{" "}
+            <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-900">
+              UPSTASH_REDIS_REST_URL
+            </code>{" "}
+            and{" "}
+            <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-900">
+              UPSTASH_REDIS_REST_TOKEN
+            </code>{" "}
+            are set, then redeploy.
           </p>
         ) : items.length === 0 ? (
           <p className="text-sm text-zinc-600 dark:text-zinc-400">No rows yet. Submit the form first.</p>
