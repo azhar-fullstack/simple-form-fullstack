@@ -6,7 +6,7 @@ import { normalizePhoneDigits, validateContact } from "@/lib/validation";
 type SubmitState =
   | { status: "idle" }
   | { status: "submitting" }
-  | { status: "success"; message: string }
+  | { status: "success"; message: string; demo?: boolean }
   | { status: "error"; message: string; details?: string[] };
 
 export function ContactForm() {
@@ -41,6 +41,7 @@ export function ContactForm() {
         details?: string[] | string;
         message?: string;
         hint?: string;
+        demo?: boolean;
       };
 
       if (!res.ok) {
@@ -63,6 +64,7 @@ export function ContactForm() {
       setSubmitState({
         status: "success",
         message: payload.message ?? "Saved successfully.",
+        demo: Boolean(payload.demo),
       });
       setName("");
       setPhone("");
@@ -91,7 +93,8 @@ export function ContactForm() {
           Contact
         </h1>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Leave your name and phone. Locally this saves to a small database file; on Vercel use Supabase (see README).
+          Leave your name and phone. On your computer, submissions are saved to a local file; on Vercel this demo only
+          validates and confirms (see README to add a real database later).
         </p>
       </div>
 
@@ -141,12 +144,17 @@ export function ContactForm() {
       ) : null}
 
       {submitState.status === "success" ? (
-        <p
-          className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+        <div
+          className="space-y-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
           role="status"
         >
-          {submitState.message}
-        </p>
+          <p>{submitState.message}</p>
+          {submitState.demo ? (
+            <p className="text-xs text-emerald-900/80 dark:text-emerald-200/80">
+              Tip: check Vercel → Logs for this request; submissions are not written to a database until you connect one.
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       {submitState.status === "error" ? (

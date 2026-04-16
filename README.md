@@ -1,8 +1,17 @@
 # simple-form-fullstack
 
-Small [Next.js](https://nextjs.org) (App Router) demo: **name + phone** form, **POST** `/api/contacts`, validation, and a **real database** (SQLite file on your machine out of the box; optional **Supabase** for Vercel).
+Small [Next.js](https://nextjs.org) (App Router) app: **name + phone** form, **POST** `/api/contacts`, and validation.
 
-## Run locally (no accounts, no Docker)
+## Behavior
+
+| Where | What happens |
+|--------|----------------|
+| **Your PC** (`npm run dev`) | Submissions are stored in **`data/contacts.db`** (SQLite via [sql.js](https://github.com/sql-js/sql.js)). |
+| **Vercel** | No database is configured by default: the API **validates** input, returns **success**, and **logs** the payload in **Vercel → Logs**. Nothing is persisted to a database until you add one. |
+
+No accounts or env vars are required for a basic GitHub → Vercel deploy.
+
+## Run locally
 
 ```bash
 git clone https://github.com/azhar-fullstack/simple-form-fullstack.git
@@ -11,38 +20,28 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000), submit the form. Rows are stored in **`data/contacts.db`** (created automatically; ignored by git). Local SQLite uses **[sql.js](https://github.com/sql-js/sql.js)** (WASM), so you only need `npm install`—no C++ build tools or Docker.
-
-If you see **“Can’t resolve …”** for a package, you are usually not in the project folder or you skipped **`npm install`** after cloning.
+Open [http://localhost:3000](http://localhost:3000). The DB file is created under `data/` (gitignored).
 
 ## Deploy on Vercel
 
-Serverless hosting has no persistent disk, so you **must** use Supabase (or similar) in production:
+Import the repo and deploy. The form should submit without errors; read **Vercel → Project → Logs** to see demo submissions.
 
-1. Create a [Supabase](https://supabase.com) project, run `supabase/schema.sql` in the **SQL Editor** (creates `contacts`).
-2. In Vercel → your project → **Settings → Environment Variables**, add:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY` (server secret only)
-3. Deploy. If both variables are set, the app uses Supabase instead of SQLite.
+## Adding a real database later
 
-Locally, if you add those same variables to `.env.local`, the app will use Supabase instead of the SQLite file.
+Use any hosted Postgres, run `db/schema.sql` once, then wire inserts in `src/lib/contacts-repository.ts` (e.g. `@vercel/postgres` or your driver of choice). Until then, production remains **demo mode** (no server-side storage).
 
 ## Scripts
 
 ```bash
-npm run dev    # development
-npm run build  # production build
-npm start      # run production build
+npm run dev
+npm run build
+npm start
 ```
 
 ## Layout
 
-- `src/components/ContactForm.tsx` — form + client validation
+- `src/components/ContactForm.tsx` — form
 - `src/app/api/contacts/route.ts` — POST handler
 - `src/lib/validation.ts` — shared rules
-- `src/lib/sqlite.ts` — local `data/contacts.db` (default when not on Vercel and no Supabase env)
-- `src/lib/supabase/admin.ts` — Supabase when env vars are set
-
-## AI (Cursor) note
-
-Scaffold and features were iterated in Cursor; verify with `npm run build`, local form submit, and (if deployed) Supabase **Table Editor**.
+- `src/lib/sqlite.ts` — local file DB
+- `src/lib/contacts-repository.ts` — local SQLite vs Vercel demo branch

@@ -1,8 +1,7 @@
-import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { insertContactSqlite } from "@/lib/sqlite";
 
 export type InsertContactResult =
-  | { ok: true; id: string | null }
+  | { ok: true; id: string | null; demo?: boolean }
   | {
       ok: false;
       message: string;
@@ -10,41 +9,20 @@ export type InsertContactResult =
       devDetail?: string;
     };
 
+/**
+ * Local: SQLite file under `data/contacts.db`.
+ * Vercel: no persistent disk — validated submissions succeed as a demo (logged only).
+ */
 export async function insertContactRow(
   name: string,
   phone: string,
 ): Promise<InsertContactResult> {
-  const supabaseInit = createSupabaseAdmin();
-  if (supabaseInit.ok) {
-    const { data, error } = await supabaseInit.client
-      .from("contacts")
-      .insert({ name, phone })
-      .select("id")
-      .single();
-
-    if (error) {
-      console.error("[insertContactRow] Supabase error:", error.message, error);
-      const hint =
-        error.message.includes("relation") && error.message.includes("does not exist")
-          ? 'Create the "contacts" table in Supabase (run supabase/schema.sql in the SQL Editor).'
-          : undefined;
-      return {
-        ok: false,
-        message: "Could not save your submission. Please try again later.",
-        hint,
-        devDetail: process.env.NODE_ENV === "development" ? error.message : undefined,
-      };
-    }
-
-    return { ok: true, id: data?.id ?? null };
-  }
-
   if (process.env.VERCEL) {
-    return {
-      ok: false,
-      message:
-        "Add Supabase to this deployment: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel (see README).",
-    };
+    console.info("[contacts] submit (demo — not persisted to DB)", {
+      name,
+      phone,
+    });
+    return { ok: true, id: null, demo: true };
   }
 
   try {

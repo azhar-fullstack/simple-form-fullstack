@@ -25,8 +25,6 @@ export async function POST(request: Request) {
   const result = await insertContactRow(name, phone);
 
   if (!result.ok) {
-    const status =
-      result.message.startsWith("Database is not configured") ? 503 : 500;
     return NextResponse.json(
       {
         ok: false,
@@ -34,15 +32,19 @@ export async function POST(request: Request) {
         details: result.devDetail ? [result.devDetail] : undefined,
         hint: result.hint,
       },
-      { status },
+      { status: 500 },
     );
   }
 
+  const demo = Boolean(result.demo);
   return NextResponse.json(
     {
       ok: true,
       id: result.id,
-      message: "Thanks — your details were saved.",
+      demo,
+      message: demo
+        ? "Thanks — we received your details. (Demo: nothing is stored in a database on this deploy.)"
+        : "Thanks — your details were saved.",
     },
     { status: 201 },
   );

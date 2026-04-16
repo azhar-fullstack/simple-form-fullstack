@@ -55,7 +55,7 @@ function persist() {
   fs.writeFileSync(dbFilePath(), Buffer.from(data));
 }
 
-/** Local-only persistence; not used on Vercel (use Supabase there). */
+/** Local-only persistence (sql.js + file under `data/`). */
 export async function insertContactSqlite(
   name: string,
   phone: string,
